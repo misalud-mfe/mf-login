@@ -1,35 +1,61 @@
 import React, { useState } from 'react';
+import { bus } from "common-utils";
+
 
 const Login = () => {
   const [form, setForm] = useState({ username: '', password: '' });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [user, setUser] = useState(null);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
     setError('');
   };
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  setLoading(true);
+  setError('');
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setError('');
+  if (!form.username || !form.password) {
+    setError('Por favor, completa todos los campos.');
+    setLoading(false);
+    return;
+  }
 
-    if (!form.username || !form.password) {
-      setError('Por favor, completa todos los campos.');
-      setLoading(false);
-      return;
+  try {
+    const response = await fetch(`${process.env.REACT_APP_API_URL}/wsAuth/login`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        usuario: form.username,
+        clave: form.password
+      })
+    });
+
+    const data = await response.json();
+
+    if (data.success) {
+      localStorage.setItem('token', data.token);
+      const userData = {
+          success: data.success,
+          message: data.message,
+          personalid: data.personalid,
+          numdocidentidad: data.numdocidentidad
+      };
+      setUser(userData);
+      bus.next({ type: 'LOGIN_SUCCESS', payload: userData });
+      alert('¡Bienvenido!');
+    } else {
+      setError(data.message || 'Usuario o contraseña incorrectos.');
     }
-
-    setTimeout(() => {
-      if (form.username === 'admin' && form.password === 'admin') {
-        alert('¡Bienvenido!');
-      } else {
-        setError('Usuario o contraseña incorrectos.');
-      }
-      setLoading(false);
-    }, 1000);
-  };
+  } catch (err) {
+    setError('Error de conexión. Intenta nuevamente.');
+  }
+  setLoading(false);
+};
 
   return (
     <div style={{
