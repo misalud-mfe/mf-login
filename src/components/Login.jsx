@@ -24,7 +24,7 @@ const handleSubmit = async (e) => {
   }
 
   try {
-    const response = await fetch(`${process.env.REACT_APP_API_URL}/wsAuth/login`, {
+    const response = await fetch(`http://172.30.31.171:4058/api/wsAuth/login`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
