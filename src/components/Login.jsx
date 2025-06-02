@@ -46,8 +46,10 @@ const handleSubmit = async (e) => {
           numdocidentidad: data.numdocidentidad
       };
       setUser(userData);
-      bus.next({ type: 'LOGIN_SUCCESS', payload: userData });
+      window.dispatchEvent(new CustomEvent('login', {detail: userData}))
+      
       alert('¡Bienvenido!');
+      
     } else {
       setError(data.message || 'Usuario o contraseña incorrectos.');
     }
